@@ -1,6 +1,7 @@
 package io.anuke.mindustry.core;
 
 import io.anuke.arc.*;
+import io.anuke.arc.collection.Array;
 import io.anuke.arc.graphics.Color;
 import io.anuke.arc.graphics.g2d.*;
 import io.anuke.arc.input.KeyCode;
@@ -19,6 +20,7 @@ import io.anuke.mindustry.net.Net;
 import io.anuke.mindustry.type.*;
 import io.anuke.mindustry.ui.dialogs.FloatingDialog;
 import io.anuke.mindustry.world.Tile;
+import io.anuke.mindustry.world.blocks.storage.CoreBlock;
 
 import java.io.IOException;
 
@@ -125,6 +127,12 @@ public class Control implements ApplicationListener{
             }
         });
 
+        Events.on(TeamEliminatedEvent.class, event -> {
+            state.stats.wavesLasted = state.wave;
+            Effects.shake(5, 6, Core.camera.position.x, Core.camera.position.y);
+            Call.onTeamEliminated(event.eliminated);
+        });
+
         //autohost for pvp maps
         Events.on(WorldLoadEvent.class, event -> {
             if(state.rules.pvp && !Net.active()){
@@ -154,11 +162,27 @@ public class Control implements ApplicationListener{
             if(e.tile.getTeam() == player.getTeam()){
                 state.stats.buildingsDestroyed++;
             }
+            if(e.tile.block() instanceof CoreBlock){
+                int i = 0;
+                for(Team t : Team.all){
+                    if(state.teams.get(t).cores.size > 0){
+                        i++;
+                    }
+                }
+                state.stats.rankPlace = i;
+            }
         });
 
         Events.on(UnitDestroyEvent.class, e -> {
             if(e.unit.getTeam() != player.getTeam()){
                 state.stats.enemyUnitsDestroyed++;
+            }
+            if(e.unit instanceof Player){
+                if(e.unit.getTeam() == player.getTeam()){
+                    state.stats.teamDeaths++;
+                }else{
+                    state.stats.enemyDeaths++;
+                }
             }
         });
 

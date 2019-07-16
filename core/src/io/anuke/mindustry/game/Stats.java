@@ -22,6 +22,12 @@ public class Stats{
     public int buildingsDeconstructed;
     /** Friendly buildings destroyed. */
     public int buildingsDestroyed;
+    /** Enemy players killed */
+    public int enemyDeaths;
+    /** Friendly players killed */
+    public int teamDeaths;
+    /** Place in ranking by the order of elimination from the game (in pvp) */
+    public int rankPlace;
 
     public RankResult calculateRank(Zone zone, boolean launched){
         float score = 0;
