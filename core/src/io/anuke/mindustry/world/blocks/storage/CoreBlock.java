@@ -131,6 +131,8 @@ public class CoreBlock extends StorageBlock{
     public void update(Tile tile){
         CoreEntity entity = tile.entity();
 
+        entity.nextSteal = Math.max(entity.nextSteal - entity.delta(), 0f);
+
         if(entity.currentUnit != null){
             if(!entity.currentUnit.isDead() || !entity.currentUnit.isAdded()){
                 entity.currentUnit = null;
@@ -160,6 +162,7 @@ public class CoreBlock extends StorageBlock{
         float progress;
         float time;
         float heat;
+        float nextSteal;
 
         @Override
         public void updateSpawning(Player player){
@@ -174,17 +177,22 @@ public class CoreBlock extends StorageBlock{
         @Override
         public void damage(float damage, Team team){
             if(state.rules.resourcesWar && state.teams.get(team).eaters.size != 0){
+                boolean stolen = false;
                 for(Tile eater : state.teams.get(getTeam()).eaters){
                     ItemEater.ItemEaterEntity eaterEntity = eater.entity();
                     ItemEater.ItemEaterEntity damagerEntity = state.teams.get(team).eaters.first().entity();
-                    float pointsTaken = (eaterEntity.pointsEarned - damage) > 0 ? (eaterEntity.pointsEarned - damage) : 0;
-                    eaterEntity.pointsEarned -= pointsTaken;
-                    damagerEntity.pointsEarned += pointsTaken;
+                    float pointsTaken = (eaterEntity.pointsEarned - damage) >= 0 ? damage : eaterEntity.pointsEarned;
 
-                    if(pointsTaken>0){
+                    if(pointsTaken>0 && nextSteal <= 0f){
                         Effects.effect(Fx.itemsStolen, eaterEntity.getX(), eaterEntity.getY());
                         Effects.effect(Fx.itemsIncome, damagerEntity.getX(), damagerEntity.getY());
+                        eaterEntity.pointsEarned -= pointsTaken;
+                        damagerEntity.pointsEarned += pointsTaken;
+                        stolen = true;
                     }
+                }
+                if(stolen){
+                    nextSteal = 60 * 1f;
                 }
             }
             damage(damage);
