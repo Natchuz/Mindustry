@@ -112,8 +112,8 @@ public class PlayerListFragment extends Fragment{
                     teamPicker.addCloseButton();
                     teamPicker.setFillParent(false);
                     teamPicker.cont.defaults().size(40*3f, 80);
-                    for(int i=0; i < Team.all.length; i++){
-                        Team team = Team.all[i];
+                    for(int j=0; j < Team.all.length; j++){
+                        Team team = Team.all[j];
                         ImageButton teamButton = new ImageButton("white", "clear-toggle-partial");
                         teamButton.margin(4f);
                         teamButton.getStyle().imageUpColor = team.color;
@@ -125,7 +125,7 @@ public class PlayerListFragment extends Fragment{
                         teamButton.setSize(32f, 32f);
                         teamButton.getImageCell().grow();
                         teamPicker.cont.add(teamButton).center();
-                        if((i+1)%3==0){
+                        if((j+1)%3==0){
                             teamPicker.cont.row();
                         }
                     }
